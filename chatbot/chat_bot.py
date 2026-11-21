@@ -11,9 +11,17 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-messages = []
+messages = [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant."
+    }
+]
+
+total_tokens = 0
 
 def bot(query):
+    global total_tokens
     messages.append({"role": "user", "content": query})
     # LLM parameters:
         # model - model to be used
@@ -31,9 +39,10 @@ def bot(query):
     )
     
     # response.choices - > list of choices(LLM may reply with multiple choices), each choice has a message with content
-    response =  response.choices[0].message.content
-    messages.append({"role": "assistant", "content": response})
-    return response
+    content =  response.choices[0].message.content
+    messages.append({"role": "assistant", "content": content})
+    total_tokens = total_tokens + response.usage.total_tokens
+    return content
 
 def chat():
     print("Welcome to the chatbot! Type 'exit' to quit.")
@@ -47,6 +56,7 @@ def chat():
 
 def main():
     chat()
+    print(f"Total tokens used: {total_tokens}")
 
 if __name__ == '__main__':
     main()
