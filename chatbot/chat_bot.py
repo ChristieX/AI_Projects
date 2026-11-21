@@ -9,11 +9,12 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = OpenAI(
     api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1"
-    )
+)
 
-
+messages = []
 
 def bot(query):
+    messages.append({"role": "user", "content": query})
     # LLM parameters:
         # model - model to be used
         # messages - list of messages, each message has a role and content
@@ -26,12 +27,13 @@ def bot(query):
         # stream - controls whether to stream the output or not, if True, the output will be streamed in chunks, if False, the output will be returned as a whole
     response = client.chat.completions.create(
         model="openai/gpt-oss-20b",
-        messages=[
-            {"role": "user", "content": query}
-        ]
+        messages=messages
     )
+    
     # response.choices - > list of choices(LLM may reply with multiple choices), each choice has a message with content
-    return response.choices[0].message.content
+    response =  response.choices[0].message.content
+    messages.append({"role": "assistant", "content": response})
+    return response
 
 def chat():
     print("Welcome to the chatbot! Type 'exit' to quit.")
